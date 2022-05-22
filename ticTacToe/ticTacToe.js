@@ -1,5 +1,7 @@
 const X_CLASS = 'x'
 const CIRCLE_CLASS = 'circle'
+
+// Storing Winning combinations
 const WINNING_COMBINATIONS = [
   [0, 1, 2],
   [3, 4, 5],
@@ -10,52 +12,54 @@ const WINNING_COMBINATIONS = [
   [0, 4, 8],
   [2, 4, 6]
 ]
+
 const cellElements = document.querySelectorAll('[data-cell]')
 const board = document.getElementById('board')
 const winningMessageElement = document.getElementById('winningMessage')
 const restartButton = document.getElementById('restartButton')
 const winningMessageTextElement = document.querySelector('[data-winning-message-text]')
-let circleTurn
 
 const playerType = prompt('Type player2 mode (H-human, C-computer): ');
+
+// decalriing variable to change it further
+let circleTurn
+
+// Initializing game calling the function 'startGame()'
 startGame()
 
-restartButton.addEventListener('click', startGame)
-
-// function playerChoice() {
-  
-//   if (playerType == 'H') {
-//     humanGame()
-//   }
-//   else {
-//     computerGame()
-//   }
-// }
-
-// function computerGame() {
-
-// }
-
 function startGame() {
+  // Keeping the variable circleTurn false
   circleTurn = false
+  // iteration over all the cells of the board
   cellElements.forEach(cell => {
-    cell.classList.remove(X_CLASS)
-    cell.classList.remove(CIRCLE_CLASS)
-    cell.removeEventListener('click', handleClick)
+    cell.classList.remove(X_CLASS)  // Removes previously alloted class 
+    cell.classList.remove(CIRCLE_CLASS) 
+    
+    // Event removal to every cell onclick
+    cell.removeEventListener('click', handleClick) 
+
+    // Event addition to every cell onclick
     cell.addEventListener('click', handleClick, {once: true})
   })
   setBoardHoverClass()
   winningMessageElement.classList.remove('show')
 }
 
+// OnClicking a cell handlelick function will be triggered
 function handleClick(e) {
-  const cell = e.target
-  let currentClass = circleTurn ? CIRCLE_CLASS : X_CLASS
-  placeMark(cell, currentClass)
+  const cell = e.target // stores the information of clicked cell
+  let currentClass = circleTurn ? CIRCLE_CLASS : X_CLASS 
+  placeMark(cell, currentClass) // function to mark the selected cell
+
+  // After every mark Display checkWin() function will check for the winning combination
   if (checkWin(currentClass)) {
+    // if checkWin() function returns true that means we have found winning combination,
+    // after that we will end the game using endGame() function
     endGame(false)
+    // if There is no WINNING_COMBINATION isDraw() function will be triggered to check for draw
   } else if (isDraw()) {
     endGame(true)
+    // if there is no winning combination or draw combination the game will be carried out forward
   } else {
     swapTurns()
     if (playerType === 'C') {
@@ -66,25 +70,26 @@ function handleClick(e) {
   }
 }
 
-function computer(currentClass){
-  currentClass = CIRCLE_CLASS
-  console.log(currentClass)
-  const emptyCell = []
-  cellElements.forEach((cell,index)=> {
-    if (cell.className === 'cell') {
-      emptyCell.push(index) 
-    }
+// placeMark function will change the class of the selected cell, which will gives the style to the element to display X or O
+function placeMark(cell, currentClass) {
+  cell.classList.add(currentClass)
+}
+
+// compares the every WINNING_COMBINATIONS to the current placedMarkes to get the winner 
+function checkWin(currentClass) {
+  return WINNING_COMBINATIONS.some(combination => {
+    return combination.every(index => {
+      // only for every true return statement it will return true
+      return cellElements[index].classList.contains(currentClass)
+    })
   })
-  const random = emptyCell[Math.ceil(Math.random() * emptyCell.length) - 1]
-  cellElements[random].classList.add(CIRCLE_CLASS);
-  // circleTurn = !circleTurn
-  if (checkWin(currentClass)) {
-    endGame(false)
-  } else if (isDraw()) {
-    endGame(true)
-  } else {
-  swapTurns()
-  }
+}
+
+// isDraw() checks for the every cell and no winnig combination found then it returns true
+function isDraw() {
+  return [...cellElements].every(cell => {
+    return cell.classList.contains(X_CLASS) || cell.classList.contains(CIRCLE_CLASS)
+  })
 }
 
 function endGame(draw) {
@@ -93,6 +98,7 @@ function endGame(draw) {
     drawCount.innerHTML++
     gamePlayed.innerHTML++ 
   } else {
+    // this section if only triggered when there is a winning combination found
     winningMessageTextElement.innerText = `${circleTurn ? `${player2Name.innerHTML}` : `${player1Name.innerHTML}`} Wins!`
     gamePlayed.innerHTML++  
     if (circleTurn) {
@@ -105,26 +111,11 @@ function endGame(draw) {
   winningMessageElement.classList.add('show')
 }
 
-function isDraw() {
-  return [...cellElements].every(cell => {
-    return cell.classList.contains(X_CLASS) || cell.classList.contains(CIRCLE_CLASS)
-  })
-}
-
-function placeMark(cell, currentClass) {
-  cell.classList.add(currentClass)
-}
-
+// swaps The turn
 function swapTurns() {
-  // if (playerType === 'H') {
-    circleTurn = !circleTurn
-  // }
-  // else {
-    // circleTurn = !circleTurn
-    // computer()
-  // }
-  // circleTurn = !circleTurn
+  circleTurn = !circleTurn
 }
+
 
 function setBoardHoverClass() {
   board.classList.remove(X_CLASS)
@@ -136,13 +127,29 @@ function setBoardHoverClass() {
   }
 }
 
-function checkWin(currentClass) {
-  return WINNING_COMBINATIONS.some(combination => {
-    return combination.every(index => {
-      return cellElements[index].classList.contains(currentClass)
-    })
+
+
+function computer(currentClass){
+  currentClass = CIRCLE_CLASS
+  console.log(currentClass)
+  const emptyCell = []
+  cellElements.forEach((cell,index)=> {
+    if (cell.className === 'cell') {
+      emptyCell.push(index) 
+    }
   })
+  const random = emptyCell[Math.ceil(Math.random() * emptyCell.length) - 1]
+  cellElements[random].classList.add(CIRCLE_CLASS);
+  if (checkWin(currentClass)) {
+    endGame(false)
+  } else if (isDraw()) {
+    endGame(true)
+  } else {
+  swapTurns()
+  }
 }
+
+restartButton.addEventListener('click', startGame)
 
 // Player Name change
 
