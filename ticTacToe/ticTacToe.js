@@ -131,7 +131,6 @@ function setBoardHoverClass() {
 
 function computer(currentClass){
   currentClass = CIRCLE_CLASS
-  console.log(currentClass)
   const emptyCell = []
   cellElements.forEach((cell,index)=> {
     if (cell.className === 'cell') {
